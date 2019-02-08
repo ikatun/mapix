@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc"
   },
-  "author": "Cameron Nokes",
+  "author": "Ivo Katunaric",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^2.7.2"
