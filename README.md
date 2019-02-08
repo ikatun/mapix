@@ -1,13 +1,13 @@
-Use observer+rerender to await api call promises.
+*Installation*
+```
+npm install mapix
+```
 
+Use observer+rerender to await api call promises. 
 
-Library is still in development.
+Library is still in development. Documentation is in process of being created :)
 
-
-Documentation is in process of being created :)
-
-Here's an usage example:
-
+*Usage example:*
 ```typescript
 // api-store.js (or api-store.ts)
 import { createGetter, ApiCall } from 'mapix';
