@@ -1,6 +1,6 @@
 {
   "name": "mapix",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "My npm package written in TS",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
