@@ -21,6 +21,7 @@ export class ApiStore {
    
    // skip typing if you don't
   searchProductsBySubstring = createGetter('/api/products/search/:productName');
+  // note that `productName` must be used as a variable when api is called later
 
   searchProducersBySubstring = createGetter('/api/producers/search/:producerName');
 }
@@ -38,7 +39,10 @@ import { apiStore } from '../api-store';
 @observer
 export class ProductsList extends React.Component {
   render() {
-    const { data, loading, error } = apiStore.searchProductsBySubstring({ productName: 'my test product' });
+    const { data, loading, error } = 
+        apiStore.searchProductsBySubstring({ productName: 'my test product' });
+        // here's that `productName` variable from before
+
     if (loading) {
       return <Spinner />;
     }
