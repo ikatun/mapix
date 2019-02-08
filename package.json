@@ -1,7 +1,7 @@
 {
   "name": "mapix",
   "version": "0.0.4",
-  "description": "My npm package written in TS",
+  "description": "Call api directly from render using mobx and re-render instead of awaiting promises",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
