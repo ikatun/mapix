@@ -1,0 +1,21 @@
+{
+  "name": "mapix",
+  "version": "0.0.1",
+  "description": "My npm package written in TS",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Cameron Nokes",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^2.7.2"
+  },
+  "dependencies": {
+    "@types/lodash": "*",
+    "axios": "*",
+    "lodash": "*",
+    "mobx": "*"
+  }
+}
