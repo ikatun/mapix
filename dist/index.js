@@ -49,74 +49,95 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = __importDefault(require("axios"));
 var mobx_1 = require("mobx");
 var lodash_1 = require("lodash");
-var cache = {};
+var resolve_path_1 = require("./resolve-path");
 function getKey(path, method, args, body) {
     return [path, method, JSON.stringify(args), JSON.stringify(body)];
 }
 var defaultOptions = {
     log: function () { }
 };
-function createGetter(path, method, options) {
-    var _this = this;
-    if (method === void 0) { method = 'get'; }
-    var opts = __assign({}, defaultOptions, options);
-    var log = function (data) {
-        if (!opts.log) {
-            return;
-        }
-        var dataWithoutMobx = {};
-        for (var _i = 0, _a = lodash_1.keys(data); _i < _a.length; _i++) {
-            var key = _a[_i];
-            dataWithoutMobx[key] = mobx_1.toJS(data[key]);
-        }
-        opts.log(dataWithoutMobx);
-    };
-    var getterForPath = function (args, body) {
-        if (args === void 0) { args = {}; }
-        if (body === void 0) { body = undefined; }
-        var resultingPath = path;
-        for (var _i = 0, _a = lodash_1.keys(args); _i < _a.length; _i++) {
-            var key = _a[_i];
-            var value = args[key];
-            resultingPath = resultingPath.replace(":" + key, value);
-        }
-        var logData = { path: path, args: args, method: method, body: body, resultingPath: resultingPath };
-        var cachedResult = lodash_1.get(cache, getKey(path, method, args, body));
-        if (cachedResult) {
-            log(__assign({}, logData, { status: 'cached', result: cachedResult }));
-            return cachedResult;
-        }
-        var result = mobx_1.observable({ data: undefined, error: undefined, loading: true });
-        lodash_1.set(cache, getKey(path, method, args, body), result);
-        (function () { return __awaiter(_this, void 0, void 0, function () {
-            var data;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        log(__assign({}, logData, { status: 'awaiting' }));
-                        return [4 /*yield*/, axios_1.default[method](resultingPath, body)];
-                    case 1:
-                        data = (_a.sent()).data;
-                        result.data = data;
-                        result.loading = false;
-                        result.error = undefined;
-                        log(__assign({}, logData, { status: 'done', result: result }));
-                        return [2 /*return*/];
-                }
-            });
-        }); })();
-        return result;
-    };
-    return getterForPath;
-}
-exports.createGetter = createGetter;
-function clearPath(path, method, args, body) {
-    if (method === void 0) { method = 'get'; }
-    if (args === void 0) { args = {}; }
-    if (body === void 0) { body = undefined; }
-    var cachedResult = lodash_1.get(cache, [path, method]);
-    if (cachedResult) {
-        cachedResult.data = undefined;
+function removeMobxFromData(data) {
+    var dataWithoutMobx = {};
+    for (var _i = 0, _a = lodash_1.keys(data); _i < _a.length; _i++) {
+        var key = _a[_i];
+        dataWithoutMobx[key] = mobx_1.toJS(data[key]);
     }
+    return dataWithoutMobx;
 }
-exports.clearPath = clearPath;
+var Mapix = /** @class */ (function () {
+    function Mapix(axiosInstance) {
+        if (axiosInstance === void 0) { axiosInstance = undefined; }
+        var _this = this;
+        this.cache = {};
+        this.createGetter = function (path, method, options) {
+            if (method === void 0) { method = 'get'; }
+            var opts = __assign({}, defaultOptions, options);
+            var log = function (data) {
+                if (!opts.log) {
+                    return;
+                }
+                opts.log(removeMobxFromData(data));
+            };
+            var getterForPath = function (args, body) {
+                if (args === void 0) { args = {}; }
+                if (body === void 0) { body = undefined; }
+                var resultingPath = resolve_path_1.resolvePath(path, args);
+                var logData = { path: path, args: args, method: method, body: body, resultingPath: resultingPath };
+                var cachedResult = lodash_1.get(_this.cache, getKey(path, method, args, body));
+                if (cachedResult && !cachedResult.expired) {
+                    log(__assign({}, logData, { status: 'cached', result: cachedResult }));
+                    return cachedResult;
+                }
+                var result = mobx_1.observable({ data: undefined, error: undefined, loading: true, expired: false });
+                lodash_1.set(_this.cache, getKey(path, method, args, body), result);
+                (function () { return __awaiter(_this, void 0, void 0, function () {
+                    var data, error_1;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                log(__assign({}, logData, { status: 'awaiting' }));
+                                _a.label = 1;
+                            case 1:
+                                _a.trys.push([1, 3, , 4]);
+                                return [4 /*yield*/, axios_1.default[method](resultingPath, body)];
+                            case 2:
+                                data = (_a.sent()).data;
+                                result.data = data;
+                                result.loading = false;
+                                result.error = undefined;
+                                log(__assign({}, logData, { status: 'done', result: result }));
+                                return [3 /*break*/, 4];
+                            case 3:
+                                error_1 = _a.sent();
+                                result.data = undefined;
+                                result.loading = false;
+                                result.error = error_1;
+                                log(__assign({}, logData, { status: 'failed', result: result }));
+                                return [3 /*break*/, 4];
+                            case 4: return [2 /*return*/];
+                        }
+                    });
+                }); })();
+                return result;
+            };
+            return getterForPath;
+        };
+        this.clearPath = function (path, method, args, body) {
+            if (method === void 0) { method = 'get'; }
+            if (args === void 0) { args = {}; }
+            if (body === void 0) { body = undefined; }
+            var cachedResult = lodash_1.get(_this.cache, getKey(path, method, args, body));
+            if (cachedResult) {
+                cachedResult.data = undefined;
+                cachedResult.expired = true;
+                cachedResult.loading = true;
+            }
+        };
+        this.axios = axiosInstance || axios_1.default;
+    }
+    return Mapix;
+}());
+exports.Mapix = Mapix;
+var defaultMapix = new Mapix();
+exports.createGetter = defaultMapix.createGetter;
+exports.clearPath = defaultMapix.clearPath;

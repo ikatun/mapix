@@ -1,7 +1,9 @@
+import { AxiosInstance } from 'axios';
 export declare type ApiCall<T> = () => {
     data: T;
     loading: boolean;
     error: Error;
+    expired: boolean;
 };
 export interface ILogArgs {
     path: string;
@@ -15,5 +17,12 @@ export interface ILogArgs {
 export interface IMapixOptions {
     log(args: ILogArgs): void;
 }
-export declare function createGetter(path: string, method: string | undefined, options: IMapixOptions): (args?: {}, body?: undefined) => any;
-export declare function clearPath(path: string, method?: string, args?: {}, body?: undefined): void;
+export declare class Mapix {
+    cache: any;
+    axios: AxiosInstance;
+    constructor(axiosInstance?: undefined);
+    createGetter: (path: string, method: string | undefined, options: IMapixOptions) => (args?: {}, body?: undefined) => any;
+    clearPath: (path: string, method?: string, args?: {}, body?: undefined) => void;
+}
+export declare const createGetter: (path: string, method: string | undefined, options: IMapixOptions) => (args?: {}, body?: undefined) => any;
+export declare const clearPath: (path: string, method?: string, args?: {}, body?: undefined) => void;
