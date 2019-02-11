@@ -66,7 +66,7 @@ export class Mapix {
       (async () => {
         log({ ...logData, status: 'awaiting' });
         try {
-          const { data } = await axios[method](resultingPath, body);
+          const { data } = await this.axios[method](resultingPath, body);
           result.data = data;
           result.loading = false;
           result.error = undefined;

@@ -98,7 +98,7 @@ var Mapix = /** @class */ (function () {
                                 _a.label = 1;
                             case 1:
                                 _a.trys.push([1, 3, , 4]);
-                                return [4 /*yield*/, axios_1.default[method](resultingPath, body)];
+                                return [4 /*yield*/, this.axios[method](resultingPath, body)];
                             case 2:
                                 data = (_a.sent()).data;
                                 result.data = data;
