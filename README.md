@@ -42,13 +42,8 @@ const axiosInstance = axios.create();
 const { createGetter } = new Mapix(axiosInstance);
 
 export class ApiStore {
-    // use typing for the response if you know it
   apiDetails = createGetter<IApiDetails>('/api/details');
-   
-   // skip typing if you don't
   searchProductsBySubstring = createGetter('/api/products/search/:productName');
-  // note that `productName` must be used as a variable when api is called later
-
   searchProducersBySubstring = createGetter('/api/producers/search/:producerName');
 }
 
