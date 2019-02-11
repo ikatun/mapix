@@ -55,6 +55,7 @@ export class ApiStore {
 export const apiStore = new ApiStore();
 ```
 
+*Calling the API:*
 ```tsx
 import * as React from 'react';
 import { observer } from 'mobx-react';
