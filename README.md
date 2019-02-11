@@ -17,7 +17,7 @@ import { IApiDetails } from './IApiDetails';
 
 export class ApiStore {
     // use typing for the response if you know it
-  apiDetails: ApiCall<IApiDetails> = createGetter('/api/details');
+  apiDetails = createGetter<IApiDetails>('/api/details');
    
    // skip typing if you don't
   searchProductsBySubstring = createGetter('/api/products/search/:productName');
@@ -32,7 +32,7 @@ export const apiStore = new ApiStore();
 *Usage example with custom axios instance:*
 ```typescript
 // api-store.js (or api-store.ts)
-import { Mapix, ApiCall } from 'mapix';
+import { Mapix } from 'mapix';
 import axios from 'axios';
 
 import { IProduct } from './IProduct';
@@ -43,7 +43,7 @@ const { createGetter } = new Mapix(axiosInstance);
 
 export class ApiStore {
     // use typing for the response if you know it
-  apiDetails: ApiCall<IApiDetails> = createGetter('/api/details');
+  apiDetails = createGetter<IApiDetails>('/api/details');
    
    // skip typing if you don't
   searchProductsBySubstring = createGetter('/api/products/search/:productName');
