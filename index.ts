@@ -3,8 +3,6 @@ import { observable, toJS } from 'mobx';
 import { get, set, keys } from 'lodash';
 import { resolvePath } from './resolve-path';
 
-// const cache = {};
-
 export type ApiCall<T> = () => { data: T, loading: boolean, error: Error, expired: boolean };
 function getKey(path: string, method: string, args: object, body: object | undefined) {
   return [path, method, JSON.stringify(args), JSON.stringify(body)];
@@ -21,7 +19,7 @@ export interface ILogArgs {
 }
 
 export interface IMapixOptions {
-  log(args: ILogArgs): void;
+  log?(args: ILogArgs): void;
 }
 
 const defaultOptions: IMapixOptions = {
@@ -41,12 +39,11 @@ export class Mapix {
   cache: any = {};
   axios: AxiosInstance;
 
-  constructor(axiosInstance = undefined) {
+  constructor(axiosInstance?: AxiosInstance) {
     this.axios = axiosInstance || axios;
   }
 
-  createGetter = (path: string, method = 'get', options: IMapixOptions) => {
-    const opts = { ...defaultOptions, ...options };
+  createGetter = (path: string, method = 'get', opts: IMapixOptions = {}) => {
     const log = (data: object) => {
       if (!opts.log) {
         return;

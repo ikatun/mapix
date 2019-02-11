@@ -15,14 +15,14 @@ export interface ILogArgs {
     result: Object;
 }
 export interface IMapixOptions {
-    log(args: ILogArgs): void;
+    log?(args: ILogArgs): void;
 }
 export declare class Mapix {
     cache: any;
     axios: AxiosInstance;
-    constructor(axiosInstance?: undefined);
-    createGetter: (path: string, method: string | undefined, options: IMapixOptions) => (args?: {}, body?: undefined) => any;
+    constructor(axiosInstance?: AxiosInstance);
+    createGetter: (path: string, method?: string, opts?: IMapixOptions) => (args?: {}, body?: undefined) => any;
     clearPath: (path: string, method?: string, args?: {}, body?: undefined) => void;
 }
-export declare const createGetter: (path: string, method: string | undefined, options: IMapixOptions) => (args?: {}, body?: undefined) => any;
+export declare const createGetter: (path: string, method?: string, opts?: IMapixOptions) => (args?: {}, body?: undefined) => any;
 export declare const clearPath: (path: string, method?: string, args?: {}, body?: undefined) => void;

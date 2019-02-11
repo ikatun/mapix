@@ -66,12 +66,11 @@ function removeMobxFromData(data) {
 }
 var Mapix = /** @class */ (function () {
     function Mapix(axiosInstance) {
-        if (axiosInstance === void 0) { axiosInstance = undefined; }
         var _this = this;
         this.cache = {};
-        this.createGetter = function (path, method, options) {
+        this.createGetter = function (path, method, opts) {
             if (method === void 0) { method = 'get'; }
-            var opts = __assign({}, defaultOptions, options);
+            if (opts === void 0) { opts = {}; }
             var log = function (data) {
                 if (!opts.log) {
                     return;
