@@ -10,6 +10,8 @@
   "author": "Ivo Katunaric",
   "license": "MIT",
   "devDependencies": {
+    "axios-mock-adapter": "^1.16.0",
+    "bluebird": "^3.5.3",
     "typescript": "^2.7.2"
   },
   "dependencies": {

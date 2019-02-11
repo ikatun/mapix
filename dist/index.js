@@ -53,9 +53,18 @@ var resolve_path_1 = require("./resolve-path");
 function getKey(path, method, args, body) {
     return [path, method, JSON.stringify(args), JSON.stringify(body)];
 }
-var defaultOptions = {
-    log: function () { }
-};
+function getCachedValues(cache, path, method, args, body) {
+    if (body && args && method) {
+        return [lodash_1.get(cache, [path, method, JSON.stringify(args), JSON.stringify(body)])].filter(function (x) { return x; });
+    }
+    if (args && method) {
+        return lodash_1.values(lodash_1.get(cache, [path, method, JSON.stringify(args)]));
+    }
+    if (method) {
+        return lodash_1.flatten(lodash_1.values(lodash_1.get(cache, [path, method])).map(lodash_1.values));
+    }
+    return lodash_1.flatten(lodash_1.flatten(lodash_1.values(lodash_1.get(cache, path)).map(lodash_1.values)).map(lodash_1.values));
+}
 function removeMobxFromData(data) {
     var dataWithoutMobx = {};
     for (var _i = 0, _a = lodash_1.keys(data); _i < _a.length; _i++) {
@@ -83,14 +92,14 @@ var Mapix = /** @class */ (function () {
                 var resultingPath = resolve_path_1.resolvePath(path, args);
                 var logData = { path: path, args: args, method: method, body: body, resultingPath: resultingPath };
                 var cachedResult = lodash_1.get(_this.cache, getKey(path, method, args, body));
-                if (cachedResult && !cachedResult.expired) {
+                if (cachedResult && !cachedResult.expired && !cachedResult.error) {
                     log(__assign({}, logData, { status: 'cached', result: cachedResult }));
                     return cachedResult;
                 }
                 var result = mobx_1.observable({ data: undefined, error: undefined, loading: true, expired: false });
                 lodash_1.set(_this.cache, getKey(path, method, args, body), result);
                 (function () { return __awaiter(_this, void 0, void 0, function () {
-                    var data, error_1;
+                    var data_1, error_1;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -100,17 +109,21 @@ var Mapix = /** @class */ (function () {
                                 _a.trys.push([1, 3, , 4]);
                                 return [4 /*yield*/, this.axios[method](resultingPath, body)];
                             case 2:
-                                data = (_a.sent()).data;
-                                result.data = data;
-                                result.loading = false;
-                                result.error = undefined;
+                                data_1 = (_a.sent()).data;
+                                mobx_1.action(function () {
+                                    result.data = data_1;
+                                    result.loading = false;
+                                    result.error = undefined;
+                                })();
                                 log(__assign({}, logData, { status: 'done', result: result }));
                                 return [3 /*break*/, 4];
                             case 3:
                                 error_1 = _a.sent();
-                                result.data = undefined;
-                                result.loading = false;
-                                result.error = error_1;
+                                mobx_1.action(function () {
+                                    result.data = undefined;
+                                    result.loading = false;
+                                    result.error = error_1;
+                                })();
                                 log(__assign({}, logData, { status: 'failed', result: result }));
                                 return [3 /*break*/, 4];
                             case 4: return [2 /*return*/];
@@ -119,24 +132,32 @@ var Mapix = /** @class */ (function () {
                 }); })();
                 return result;
             };
+            getterForPath.path = path;
+            getterForPath.method = method;
+            getterForPath.mapix = _this;
             return getterForPath;
         };
-        this.clearPath = function (path, method, args, body) {
-            if (method === void 0) { method = 'get'; }
-            if (args === void 0) { args = {}; }
+        this.expirePath = function (path, method, args, body) {
             if (body === void 0) { body = undefined; }
-            var cachedResult = lodash_1.get(_this.cache, getKey(path, method, args, body));
-            if (cachedResult) {
-                cachedResult.data = undefined;
-                cachedResult.expired = true;
-                cachedResult.loading = true;
-            }
+            var cachedResults = getCachedValues(_this.cache, path, method, args, body);
+            mobx_1.action(function () {
+                cachedResults.forEach(function (cachedResult) {
+                    cachedResult.data = undefined;
+                    cachedResult.expired = true;
+                    cachedResult.loading = true;
+                });
+            })();
         };
         this.axios = axiosInstance || axios_1.default;
     }
     return Mapix;
 }());
 exports.Mapix = Mapix;
-var defaultMapix = new Mapix();
-exports.createGetter = defaultMapix.createGetter;
-exports.clearPath = defaultMapix.clearPath;
+exports.expire = function (getterForPath, args, body) {
+    if (body === void 0) { body = undefined; }
+    var path = getterForPath.path;
+    var method = getterForPath.method;
+    var mapix = getterForPath.mapix;
+    mapix.expirePath(path, method, args, body);
+};
+exports.createGetter = new Mapix().createGetter;

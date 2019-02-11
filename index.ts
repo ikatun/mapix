@@ -1,11 +1,30 @@
 import axios, { AxiosInstance } from 'axios';
-import { observable, toJS } from 'mobx';
-import { get, set, keys } from 'lodash';
+import { observable, toJS, action } from 'mobx';
+import { get, set, keys, values, flatten } from 'lodash';
 import { resolvePath } from './resolve-path';
 
-export type ApiCall<T> = () => { data: T, loading: boolean, error: Error, expired: boolean };
-function getKey(path: string, method: string, args: object, body: object | undefined) {
+export interface ApiCall<T> {
+  data?: T;
+  loading: boolean;
+  error?: Error;
+  expired: boolean;
+}
+
+function getKey(path: string, method: string, args?: object, body?: object): Array<string> {
   return [path, method, JSON.stringify(args), JSON.stringify(body)];
+}
+
+function getCachedValues(cache: any, path: string, method?: string, args?: object, body?: object): Array<ApiCall<any>> {
+  if (body && args && method) {
+    return [get(cache, [path, method, JSON.stringify(args), JSON.stringify(body)])].filter(x => x);
+  }
+  if (args && method) {
+    return values(get(cache, [path, method, JSON.stringify(args)]));
+  }
+  if (method) {
+    return flatten(values(get(cache, [path, method])).map(values));
+  }
+  return flatten(flatten(values(get(cache, path)).map(values)).map(values));
 }
 
 export interface ILogArgs {
@@ -22,10 +41,6 @@ export interface IMapixOptions {
   log?(args: ILogArgs): void;
 }
 
-const defaultOptions: IMapixOptions = {
-  log(){}
-};
-
 function removeMobxFromData(data) {
   const dataWithoutMobx = {};
   for (const key of keys(data)) {
@@ -36,14 +51,14 @@ function removeMobxFromData(data) {
 }
 
 export class Mapix {
-  cache: any = {};
-  axios: AxiosInstance;
+  private cache: any = {};
+  private axios: AxiosInstance;
 
   constructor(axiosInstance?: AxiosInstance) {
     this.axios = axiosInstance || axios;
   }
 
-  createGetter = (path: string, method = 'get', opts: IMapixOptions = {}) => {
+  public createGetter = <T = any>(path: string, method: string = 'get', opts: IMapixOptions = {}) => {
     const log = (data: object) => {
       if (!opts.log) {
         return;
@@ -51,12 +66,12 @@ export class Mapix {
       opts.log(removeMobxFromData(data) as any);
     }
 
-    const getterForPath = (args = {}, body = undefined) => {
+    const getterForPath = (args = {}, body = undefined): ApiCall<T> => {
       const resultingPath = resolvePath(path, args);
 
       const logData = { path, args, method, body, resultingPath };
       const cachedResult = get(this.cache, getKey(path, method, args, body));
-      if (cachedResult && !cachedResult.expired) {
+      if (cachedResult && !cachedResult.expired && !cachedResult.error) {
         log({ ...logData, status: 'cached', result: cachedResult });
         return cachedResult;
       }
@@ -67,35 +82,49 @@ export class Mapix {
         log({ ...logData, status: 'awaiting' });
         try {
           const { data } = await this.axios[method](resultingPath, body);
-          result.data = data;
-          result.loading = false;
-          result.error = undefined;
+          action(() => { // make these statements a transaction
+            result.data = data;
+            result.loading = false;
+            result.error = undefined;
+          })();
           log({ ...logData, status: 'done', result });
         } catch (error) {
-          result.data = undefined;
-          result.loading = false;
-          result.error = error;
+          action(() => { // make these statements a transaction
+            result.data = undefined;
+            result.loading = false;
+            result.error = error;
+          })();
           log({ ...logData, status: 'failed', result });
         }
       })();
 
-      return result;
+      return result as any;
     };
 
+    (getterForPath as any).path = path;
+    (getterForPath as any).method = method;
+    (getterForPath as any).mapix = this;
     return getterForPath;
   }
 
-  clearPath = (path: string, method = 'get', args = {}, body = undefined) => {
-    const cachedResult = get(this.cache, getKey(path, method, args, body));
-
-    if (cachedResult) {
-      cachedResult.data = undefined;
-      cachedResult.expired = true;
-      cachedResult.loading = true;
-    }
+  private expirePath = (path: string, method?: string, args?: object, body = undefined) => {
+    const cachedResults = getCachedValues(this.cache, path, method, args, body);
+    action(() => {
+      cachedResults.forEach((cachedResult) => {
+        cachedResult.data = undefined;
+        cachedResult.expired = true;
+        cachedResult.loading = true;
+      });
+    })();
   }
 }
 
-const defaultMapix = new Mapix();
-export const createGetter = defaultMapix.createGetter;
-export const clearPath = defaultMapix.clearPath;
+export const expire = (getterForPath: Function, args?: object, body = undefined) => {
+  const path = (getterForPath as any).path;
+  const method = (getterForPath as any).method;
+  const mapix = (getterForPath as any).mapix;
+
+  mapix.expirePath(path, method, args, body);
+}
+
+export const { createGetter } = new Mapix();
