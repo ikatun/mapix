@@ -100,9 +100,7 @@ export class ProductsList extends React.Component {
   }
 
   render() {
-    const { data, loading, error } = 
-        apiStore.searchProductsBySubstring({ productName: 'my test product' });
-        // here's that `productName` variable from before
+    const { data, loading, error } = apiStore.searchProductsBySubstring({ productName: 'my test product' });
 
     if (loading) {
       return <Spinner />;
