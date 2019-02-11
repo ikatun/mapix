@@ -83,11 +83,11 @@ export class ProductsList extends React.Component {
 }
 ```
 
-*Expiring cached response:*
+*Expiring a previously cached response:*
 ```tsx
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { expire } from 'mapix;
+import { expire } from 'mapix';
 
 import { Spinner } from '../components/Spinner';
 import { apiStore } from '../api-store';
