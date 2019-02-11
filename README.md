@@ -10,7 +10,7 @@ Library is still in development. Documentation is in process of being created :)
 *Usage example:*
 ```typescript
 // api-store.js (or api-store.ts)
-import { createGetter, ApiCall } from 'mapix';
+import { createGetter } from 'mapix';
 
 import { IProduct } from './IProduct';
 import { IApiDetails } from './IApiDetails';
