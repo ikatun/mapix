@@ -29,6 +29,32 @@ export class ApiStore {
 export const apiStore = new ApiStore();
 ```
 
+*Usage example with custom axios instance:*
+```typescript
+// api-store.js (or api-store.ts)
+import { Mapix, ApiCall } from 'mapix';
+import axios from 'axios';
+
+import { IProduct } from './IProduct';
+import { IApiDetails } from './IApiDetails';
+
+const axiosInstance = axios.create();
+const { createGetter } = new Mapix(axiosInstance);
+
+export class ApiStore {
+    // use typing for the response if you know it
+  apiDetails: ApiCall<IApiDetails> = createGetter('/api/details');
+   
+   // skip typing if you don't
+  searchProductsBySubstring = createGetter('/api/products/search/:productName');
+  // note that `productName` must be used as a variable when api is called later
+
+  searchProducersBySubstring = createGetter('/api/producers/search/:producerName');
+}
+
+export const apiStore = new ApiStore();
+```
+
 ```tsx
 import * as React from 'react';
 import { observer } from 'mobx-react';
