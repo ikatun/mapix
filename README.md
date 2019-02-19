@@ -113,3 +113,78 @@ export class ProductsList extends React.Component {
   }
 }
 ```
+
+*Expiring a previously cached response:*
+```tsx
+import * as React from 'react';
+import { observer } from 'mobx-react';
+import { expire } from 'mapix';
+
+import { Spinner } from '../components/Spinner';
+import { apiStore } from '../api-store';
+
+@observer
+export class ProductsList extends React.Component {
+  handleRefresh = () => {
+    expire(apiStore.searchProductsBySubstring);
+    // expiring the data causes refetch only if a currently rendered component is using the data
+    
+    expire();
+    // ommiting the argument expires all the data
+  }
+
+  render() {
+    const { data, loading, error } = apiStore.searchProductsBySubstring({ productName: 'my test product' });
+
+    if (loading) {
+      return <Spinner />;
+    }
+
+    return (
+      <div>
+        <ul>
+          {data.map(product => (<li>{product.name}</li>))}
+        </ul>
+        <button onClick={this.refreshData} />
+        {/* This button should be pressed after products on the backend change */}
+      </div>
+    );
+  }
+}
+```
+
+*Expiring a previously cached response:*
+```tsx
+import * as React from 'react';
+import { observer } from 'mobx-react';
+import { expire } from 'mapix';
+
+import { Spinner } from '../components/Spinner';
+import { apiStore } from '../api-store';
+
+@observer
+export class ProductsList extends React.Component {
+  handleRefresh = () => {
+    expire(apiStore.searchProductsBySubstring);
+    // expiring the data causes refetch only if a currently rendered component is using the data
+  }
+
+  render() {
+    const { data, loading, error } = apiStore.searchProductsBySubstring({ productName: 'my test product' });
+
+    if (loading) {
+      return <Spinner />;
+    }
+
+    return (
+      <div>
+        <ul>
+          {data.map(product => (<li>{product.name}</li>))}
+        </ul>
+        <button onClick={this.refreshData} />
+        {/* This button should be pressed after products on the backend change */}
+      </div>
+    );
+  }
+}
+```

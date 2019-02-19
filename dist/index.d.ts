@@ -24,5 +24,5 @@ export declare class Mapix {
     createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions) => (args?: {}, body?: undefined) => ApiCall<T>;
     private expirePath;
 }
-export declare const expire: (getterForPath: Function, args?: object | undefined, body?: undefined) => void;
+export declare const expire: (getterForPath?: Function | undefined, args?: object | undefined, body?: undefined) => void;
 export declare const createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions) => (args?: {}, body?: undefined) => ApiCall<T>;

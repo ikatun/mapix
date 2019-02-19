@@ -50,6 +50,8 @@ function removeMobxFromData(data) {
   return dataWithoutMobx;
 }
 
+const allCreatedGetters: Function[] = [];
+
 export class Mapix {
   private cache: any = {};
   private axios: AxiosInstance;
@@ -104,6 +106,9 @@ export class Mapix {
     (getterForPath as any).path = path;
     (getterForPath as any).method = method;
     (getterForPath as any).mapix = this;
+
+    allCreatedGetters.push(getterForPath);
+
     return getterForPath;
   }
 
@@ -119,12 +124,21 @@ export class Mapix {
   }
 }
 
-export const expire = (getterForPath: Function, args?: object, body = undefined) => {
+export const expire = (getterForPath?: Function, args?: object, body = undefined) => {
+  if (!getterForPath) {
+    expireEverything();
+    return;
+  }
+
   const path = (getterForPath as any).path;
   const method = (getterForPath as any).method;
   const mapix = (getterForPath as any).mapix;
 
   mapix.expirePath(path, method, args, body);
 }
+
+const expireEverything = action(() => {
+  allCreatedGetters.forEach(createdGetter => expire(createdGetter));
+});
 
 export const { createGetter } = new Mapix();

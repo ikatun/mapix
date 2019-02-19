@@ -41,4 +41,9 @@ autorun(() => {
   console.log('CLEARING for path and method and nonexisting args');
   expire(user,{ userId: 2 });
   console.log('CLEARED!');
+
+  await delay(100);
+  console.log('CLEARING everything');
+  expire();
+  console.log('CLEARED!');
 })();

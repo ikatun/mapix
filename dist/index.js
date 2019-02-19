@@ -73,6 +73,7 @@ function removeMobxFromData(data) {
     }
     return dataWithoutMobx;
 }
+var allCreatedGetters = [];
 var Mapix = /** @class */ (function () {
     function Mapix(axiosInstance) {
         var _this = this;
@@ -135,6 +136,7 @@ var Mapix = /** @class */ (function () {
             getterForPath.path = path;
             getterForPath.method = method;
             getterForPath.mapix = _this;
+            allCreatedGetters.push(getterForPath);
             return getterForPath;
         };
         this.expirePath = function (path, method, args, body) {
@@ -155,9 +157,16 @@ var Mapix = /** @class */ (function () {
 exports.Mapix = Mapix;
 exports.expire = function (getterForPath, args, body) {
     if (body === void 0) { body = undefined; }
+    if (!getterForPath) {
+        expireEverything();
+        return;
+    }
     var path = getterForPath.path;
     var method = getterForPath.method;
     var mapix = getterForPath.mapix;
     mapix.expirePath(path, method, args, body);
 };
+var expireEverything = mobx_1.action(function () {
+    allCreatedGetters.forEach(function (createdGetter) { return exports.expire(createdGetter); });
+});
 exports.createGetter = new Mapix().createGetter;
