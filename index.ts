@@ -78,7 +78,7 @@ export class Mapix {
         return cachedResult;
       }
 
-      const result = observable({ data: undefined, error: undefined, loading: true, expired: false });
+      const result = observable({ data: cachedResult && cachedResult.data, error: undefined, loading: true, expired: false });
       set(this.cache, getKey(path, method, args, body), result);
       (async () => {
         log({ ...logData, status: 'awaiting' });
@@ -116,7 +116,6 @@ export class Mapix {
     const cachedResults = getCachedValues(this.cache, path, method, args, body);
     action(() => {
       cachedResults.forEach((cachedResult) => {
-        cachedResult.data = undefined;
         cachedResult.expired = true;
         cachedResult.loading = true;
       });

@@ -97,7 +97,7 @@ var Mapix = /** @class */ (function () {
                     log(__assign({}, logData, { status: 'cached', result: cachedResult }));
                     return cachedResult;
                 }
-                var result = mobx_1.observable({ data: undefined, error: undefined, loading: true, expired: false });
+                var result = mobx_1.observable({ data: cachedResult && cachedResult.data, error: undefined, loading: true, expired: false });
                 lodash_1.set(_this.cache, getKey(path, method, args, body), result);
                 (function () { return __awaiter(_this, void 0, void 0, function () {
                     var data_1, error_1;
@@ -144,7 +144,6 @@ var Mapix = /** @class */ (function () {
             var cachedResults = getCachedValues(_this.cache, path, method, args, body);
             mobx_1.action(function () {
                 cachedResults.forEach(function (cachedResult) {
-                    cachedResult.data = undefined;
                     cachedResult.expired = true;
                     cachedResult.loading = true;
                 });
