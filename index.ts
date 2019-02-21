@@ -68,7 +68,7 @@ export class Mapix {
       opts.log(removeMobxFromData(data) as any);
     }
 
-    const getterForPath = (args = {}, body = undefined): ApiCall<T> => {
+    const getterForPath = (args: object = {}, body = undefined): ApiCall<T> => {
       const resultingPath = resolvePath(path, args);
 
       const logData = { path, args, method, body, resultingPath };
