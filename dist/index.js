@@ -93,7 +93,7 @@ var Mapix = /** @class */ (function () {
                 var resultingPath = resolve_path_1.resolvePath(path, args);
                 var logData = { path: path, args: args, method: method, body: body, resultingPath: resultingPath };
                 var cachedResult = lodash_1.get(_this.cache, getKey(path, method, args, body));
-                if (cachedResult && !cachedResult.expired && !cachedResult.error) {
+                if (cachedResult && !cachedResult.expired) {
                     log(__assign({}, logData, { status: 'cached', result: cachedResult }));
                     return cachedResult;
                 }

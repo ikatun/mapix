@@ -73,7 +73,7 @@ export class Mapix {
 
       const logData = { path, args, method, body, resultingPath };
       const cachedResult = get(this.cache, getKey(path, method, args, body));
-      if (cachedResult && !cachedResult.expired && !cachedResult.error) {
+      if (cachedResult && !cachedResult.expired) {
         log({ ...logData, status: 'cached', result: cachedResult });
         return cachedResult;
       }
