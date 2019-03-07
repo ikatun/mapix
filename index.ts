@@ -1,6 +1,6 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosError, AxiosInstance } from 'axios';
 import { observable, toJS, action } from 'mobx';
-import { get, set, keys, values, flatten } from 'lodash';
+import { get, set, keys, values, flatten, noop } from 'lodash';
 import { resolvePath } from './resolve-path';
 
 export interface ApiCall<T> {
@@ -39,6 +39,7 @@ export interface ILogArgs {
 
 export interface IMapixOptions {
   log?(args: ILogArgs): void;
+  useHandler?: boolean;
 }
 
 function removeMobxFromData(data) {
@@ -52,13 +53,22 @@ function removeMobxFromData(data) {
 
 const allCreatedGetters: Function[] = [];
 
+export interface IMapixConstructorOptions {
+  defaultErrorHandler?: (error: AxiosError) => void;
+}
+
 export class Mapix {
   private cache: any = {};
   private axios: AxiosInstance;
+  private mapixOptions: IMapixConstructorOptions;
+  private defaultErrorHandler;
 
-  constructor(axiosInstance?: AxiosInstance) {
+  constructor(axiosInstance?: AxiosInstance, mapixOptions: IMapixConstructorOptions = {}) {
     this.axios = axiosInstance || axios;
+    this.mapixOptions = mapixOptions;
+    this.defaultErrorHandler = mapixOptions.defaultErrorHandler || noop;
   }
+
 
   public createGetter = <T = any>(path: string, method: string = 'get', opts: IMapixOptions = {}) => {
     const log = (data: object) => {
@@ -97,6 +107,9 @@ export class Mapix {
             result.error = error;
           })();
           log({ ...logData, status: 'failed', result });
+          if (opts.useHandler) {
+            this.defaultErrorHandler(error);
+          }
         }
       })();
 
