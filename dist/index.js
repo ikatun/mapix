@@ -88,9 +88,10 @@ var Mapix = /** @class */ (function () {
                 }
                 opts.log(removeMobxFromData(data));
             };
-            var getterForPath = function (args, body) {
+            var getterForPath = function (args, body, requestOpts) {
                 if (args === void 0) { args = {}; }
                 if (body === void 0) { body = undefined; }
+                if (requestOpts === void 0) { requestOpts = {}; }
                 var resultingPath = resolve_path_1.resolvePath(path, args);
                 var logData = { path: path, args: args, method: method, body: body, resultingPath: resultingPath };
                 var cachedResult = lodash_1.get(_this.cache, getKey(path, method, args, body));
@@ -127,7 +128,7 @@ var Mapix = /** @class */ (function () {
                                     result.error = error_1;
                                 })();
                                 log(__assign({}, logData, { status: 'failed', result: result }));
-                                if (opts.useHandler) {
+                                if (opts.useHandler || requestOpts.useHandler) {
                                     this.defaultErrorHandler(error_1);
                                 }
                                 return [3 /*break*/, 4];

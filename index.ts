@@ -78,7 +78,7 @@ export class Mapix {
       opts.log(removeMobxFromData(data) as any);
     }
 
-    const getterForPath = (args: object = {}, body = undefined): ApiCall<T> => {
+    const getterForPath = (args: object = {}, body = undefined, requestOpts: IMapixOptions = {}): ApiCall<T> => {
       const resultingPath = resolvePath(path, args);
 
       const logData = { path, args, method, body, resultingPath };
@@ -107,7 +107,7 @@ export class Mapix {
             result.error = error;
           })();
           log({ ...logData, status: 'failed', result });
-          if (opts.useHandler) {
+          if (opts.useHandler || requestOpts.useHandler) {
             this.defaultErrorHandler(error);
           }
         }
