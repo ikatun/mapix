@@ -75,7 +75,8 @@ function removeMobxFromData(data) {
 }
 var allCreatedGetters = [];
 var Mapix = /** @class */ (function () {
-    function Mapix(axiosInstance) {
+    function Mapix(axiosInstance, mapixOptions) {
+        if (mapixOptions === void 0) { mapixOptions = {}; }
         var _this = this;
         this.cache = {};
         this.createGetter = function (path, method, opts) {
@@ -126,6 +127,9 @@ var Mapix = /** @class */ (function () {
                                     result.error = error_1;
                                 })();
                                 log(__assign({}, logData, { status: 'failed', result: result }));
+                                if (opts.useHandler) {
+                                    this.defaultErrorHandler(error_1);
+                                }
                                 return [3 /*break*/, 4];
                             case 4: return [2 /*return*/];
                         }
@@ -150,6 +154,8 @@ var Mapix = /** @class */ (function () {
             })();
         };
         this.axios = axiosInstance || axios_1.default;
+        this.mapixOptions = mapixOptions;
+        this.defaultErrorHandler = mapixOptions.defaultErrorHandler || lodash_1.noop;
     }
     return Mapix;
 }());

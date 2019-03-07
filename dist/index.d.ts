@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import { AxiosError, AxiosInstance } from 'axios';
 export interface ApiCall<T> {
     data?: T;
     loading: boolean;
@@ -16,11 +16,17 @@ export interface ILogArgs {
 }
 export interface IMapixOptions {
     log?(args: ILogArgs): void;
+    useHandler?: boolean;
+}
+export interface IMapixConstructorOptions {
+    defaultErrorHandler?: (error: AxiosError) => void;
 }
 export declare class Mapix {
     private cache;
     private axios;
-    constructor(axiosInstance?: AxiosInstance);
+    private mapixOptions;
+    private defaultErrorHandler;
+    constructor(axiosInstance?: AxiosInstance, mapixOptions?: IMapixConstructorOptions);
     createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions) => (args?: object, body?: undefined) => ApiCall<T>;
     private expirePath;
 }
