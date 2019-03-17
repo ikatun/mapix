@@ -12,7 +12,7 @@ export function setObjectKeys(obj: any, cachePath: string[]) {
 
 export function setObjectValue(object: any, paths: string[], value: any, pathIndex: number = 0) {
   if (pathIndex === paths.length) {
-    return { ...value, ...object };
+    return { ...object, ...value };
   }
 
   const path = paths[pathIndex];

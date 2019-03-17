@@ -7,20 +7,18 @@ import { Mapix } from '../index';
 
 const mock = new MockAdapter(axios);
 
-const initialData = {
-  name: 'test',
-  lastName: 'test',
-  child: { c1: 'x', c2: 'y' },
-  arr: [{ c1: 'x1', c2: 'y1' }, { c1: 'x2', c2: 'y2' }, { c1: 'x2', c2: 'y2' }]
-};
-
 mock
   .onGet('/user/1')
-  .reply(200, initialData);
+  .reply(200, {
+    name: 'test',
+    lastName: 'test',
+    child: { c1: 'x', c2: 'y' },
+    arr: [{ c1: 'x1', c2: 'y1' }, { c1: 'x2', c2: 'y2' }, { c1: 'x2', c2: 'y2' }]
+  });
 
 const mapix = new Mapix(axios);
 
-const user = mapix.createGetter<typeof initialData>('/user/:userId');
+const user = mapix.createGetter<any>('/user/:userId');
 autorun(() => {
   console.log('response', toJS(user({ userId: 1 })));
 });
@@ -40,6 +38,5 @@ autorun(() => {
     });
 
   await delay(100);
-  mapix.setOptimisticResponse(child, { c1: 'hm', c2: 'hm hm' }, [Promise.reject('lalala')])
-    .catch(() => undefined);
+  mapix.expireRequest(child);
 })();
