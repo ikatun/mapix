@@ -1,9 +1,9 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { observable, toJS, action } from 'mobx';
 import { get, set, keys, values, flatten, noop } from 'lodash';
 import { resolvePath } from './resolve-path';
 
-export interface ApiCall<T> {
+export interface ApiCall<T> extends Promise<AxiosResponse<T>>{
   data?: T;
   loading: boolean;
   error?: Error;
@@ -88,12 +88,22 @@ export class Mapix {
         return cachedResult;
       }
 
-      const result = observable({ data: cachedResult && cachedResult.data, error: undefined, loading: true, expired: false });
+      const requestPromise = this.axios[method](resultingPath, body);
+
+      const result = observable({
+        data: cachedResult && cachedResult.data,
+        error: undefined,
+        loading: true,
+        expired: cachedResult && cachedResult.expired || false,
+        then: requestPromise.then.bind(requestPromise),
+        'catch': requestPromise.catch.bind(requestPromise),
+      });
+
       set(this.cache, getKey(path, method, args, body), result);
       (async () => {
         log({ ...logData, status: 'awaiting' });
         try {
-          const { data } = await this.axios[method](resultingPath, body);
+          const { data } = await requestPromise;
           action(() => { // make these statements a transaction
             result.data = data;
             result.loading = false;

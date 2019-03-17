@@ -99,7 +99,15 @@ var Mapix = /** @class */ (function () {
                     log(__assign({}, logData, { status: 'cached', result: cachedResult }));
                     return cachedResult;
                 }
-                var result = mobx_1.observable({ data: cachedResult && cachedResult.data, error: undefined, loading: true, expired: false });
+                var requestPromise = _this.axios[method](resultingPath, body);
+                var result = mobx_1.observable({
+                    data: cachedResult && cachedResult.data,
+                    error: undefined,
+                    loading: true,
+                    expired: cachedResult && cachedResult.expired || false,
+                    then: requestPromise.then.bind(requestPromise),
+                    'catch': requestPromise.catch.bind(requestPromise),
+                });
                 lodash_1.set(_this.cache, getKey(path, method, args, body), result);
                 (function () { return __awaiter(_this, void 0, void 0, function () {
                     var data_1, error_1;
@@ -110,7 +118,7 @@ var Mapix = /** @class */ (function () {
                                 _a.label = 1;
                             case 1:
                                 _a.trys.push([1, 3, , 4]);
-                                return [4 /*yield*/, this.axios[method](resultingPath, body)];
+                                return [4 /*yield*/, requestPromise];
                             case 2:
                                 data_1 = (_a.sent()).data;
                                 mobx_1.action(function () {

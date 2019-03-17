@@ -1,5 +1,5 @@
-import { AxiosError, AxiosInstance } from 'axios';
-export interface ApiCall<T> {
+import { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+export interface ApiCall<T> extends Promise<AxiosResponse<T>> {
     data?: T;
     loading: boolean;
     error?: Error;
