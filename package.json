@@ -18,7 +18,8 @@
     "@types/lodash": "*",
     "axios": "*",
     "lodash": "*",
-    "mobx": "*"
+    "mobx": "*",
+    "recursive-iterator": "^3.3.0"
   },
   "repository": {
     "type": "git",

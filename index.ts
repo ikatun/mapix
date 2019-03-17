@@ -82,14 +82,15 @@ export class Mapix {
       const resultingPath = resolvePath(path, args);
 
       const logData = { path, args, method, body, resultingPath };
-      const cachedResult = get(this.cache, getKey(path, method, args, body));
+      const cacheKey = getKey(path, method, args, body);
+      const cachedResult = get(this.cache, cacheKey);
       if (cachedResult && !cachedResult.expired) {
         log({ ...logData, status: 'cached', result: cachedResult });
         return cachedResult;
       }
 
       const result = observable({ data: cachedResult && cachedResult.data, error: undefined, loading: true, expired: false });
-      set(this.cache, getKey(path, method, args, body), result);
+      set(this.cache, cacheKey, result);
       (async () => {
         log({ ...logData, status: 'awaiting' });
         try {
