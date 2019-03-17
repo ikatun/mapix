@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { observable, toJS, action } from 'mobx';
 import { get, set, keys, values, flatten, noop } from 'lodash';
 import { resolvePath } from './resolve-path';
+import { setObjectKeys, setObjectValue } from './set-object-keys';
 
 export interface ApiCall<T> extends Promise<AxiosResponse<T>>{
   data?: T;
@@ -100,12 +101,13 @@ export class Mapix {
         'catch': requestPromise.catch.bind(requestPromise),
       });
 
-      set(this.cache, getKey(path, method, args, body), result);
+      set(this.cache, cacheKey, result);
       (async () => {
         log({ ...logData, status: 'awaiting' });
         try {
           const { data } = await requestPromise;
           action(() => { // make these statements a transaction
+            setObjectKeys(data, cacheKey);
             result.data = data;
             result.loading = false;
             result.error = undefined;
@@ -143,6 +145,44 @@ export class Mapix {
         cachedResult.expired = true;
         cachedResult.loading = true;
       });
+    })();
+  }
+
+  public setOptimisticResponse = async (partOfResponse: any, value: any, promises: Promise<any>[]) => {
+    const { cachePath = undefined, path = undefined } = partOfResponse['__mapixCachePath'] || {};
+    if (!cachePath || !path) {
+      throw new Error('Optimistic response part must be returned from mapix');
+    }
+    const cachedResults = get(this.cache, cachePath);
+
+    if (!cachedResults) {
+      return;
+    }
+
+    if (cachedResults.length > 1) {
+      throw new Error('Only one response can be modified as optimistic response');
+    }
+    const existingResult = cachedResults[0];
+
+    const optimisticResult = setObjectValue(existingResult.data, path, value);
+    set(this.cache, [...cachePath, 'data'], optimisticResult);
+    try {
+      await Promise.all(promises);
+    } catch (e) {
+      this.expireRequest(partOfResponse);
+      throw e;
+    }
+  }
+
+  public expireRequest = (partOfResponse: any) => {
+    const { cachePath = undefined, path = undefined } = partOfResponse['__mapixCachePath'] || {};
+    if (!cachePath || !path) {
+      throw new Error('Response part must be returned from mapix');
+    }
+    const cachedResult = get(this.cache, cachePath);
+    action(() => {
+      cachedResult.expired = true;
+      cachedResult.loading = true;
     })();
   }
 }
