@@ -16,3 +16,8 @@ const response = user({ userId: 1 });
 autorun(() => {
   console.log('response', toJS(response));
 });
+
+(async () => {
+  const x = await response;
+  console.log('awaited data', x.data);
+})();
