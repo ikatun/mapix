@@ -29,6 +29,11 @@ function setObjectValue(object, paths, value, pathIndex) {
         return __assign({}, object, value);
     }
     var path = paths[pathIndex];
-    return __assign({}, object, (_a = {}, _a[path] = setObjectValue(object[path], paths, value, pathIndex + 1), _a));
+    if (object.length === undefined) {
+        return __assign({}, object, (_a = {}, _a[path] = setObjectValue(object[path], paths, value, pathIndex + 1), _a));
+    }
+    var array = object.slice();
+    array[path] = setObjectValue(object[path], paths, value, pathIndex + 1);
+    return array;
 }
 exports.setObjectValue = setObjectValue;

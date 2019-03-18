@@ -17,9 +17,15 @@ export function setObjectValue(object: any, paths: string[], value: any, pathInd
 
   const path = paths[pathIndex];
 
-  return {
-    ...object,
-    [path]: setObjectValue(object[path], paths, value, pathIndex + 1)
-  };
+  if (object.length === undefined) {
+    return {
+      ...object,
+      [path]: setObjectValue(object[path], paths, value, pathIndex + 1)
+    };
+  }
+
+  const array = [...object];
+  array[path] = setObjectValue(object[path], paths, value, pathIndex + 1);
+  return array;
 }
 
