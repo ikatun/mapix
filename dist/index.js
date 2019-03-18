@@ -104,7 +104,7 @@ var Mapix = /** @class */ (function () {
                     data: cachedResult && cachedResult.data,
                     error: undefined,
                     loading: true,
-                    expired: cachedResult && cachedResult.expired || false,
+                    expired: false,
                     then: requestPromise.then.bind(requestPromise),
                     'catch': requestPromise.catch.bind(requestPromise),
                 });
