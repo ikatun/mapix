@@ -50,6 +50,7 @@ var axios_1 = __importDefault(require("axios"));
 var mobx_1 = require("mobx");
 var lodash_1 = require("lodash");
 var resolve_path_1 = require("./resolve-path");
+var set_object_keys_1 = require("./set-object-keys");
 function getKey(path, method, args, body) {
     return [path, method, JSON.stringify(args), JSON.stringify(body)];
 }
@@ -94,7 +95,8 @@ var Mapix = /** @class */ (function () {
                 if (requestOpts === void 0) { requestOpts = {}; }
                 var resultingPath = resolve_path_1.resolvePath(path, args);
                 var logData = { path: path, args: args, method: method, body: body, resultingPath: resultingPath };
-                var cachedResult = lodash_1.get(_this.cache, getKey(path, method, args, body));
+                var cacheKey = getKey(path, method, args, body);
+                var cachedResult = lodash_1.get(_this.cache, cacheKey);
                 if (cachedResult && !cachedResult.expired) {
                     log(__assign({}, logData, { status: 'cached', result: cachedResult }));
                     return cachedResult;
@@ -104,11 +106,11 @@ var Mapix = /** @class */ (function () {
                     data: cachedResult && cachedResult.data,
                     error: undefined,
                     loading: true,
-                    expired: cachedResult && cachedResult.expired || false,
+                    expired: false,
                     then: requestPromise.then.bind(requestPromise),
                     'catch': requestPromise.catch.bind(requestPromise),
                 });
-                lodash_1.set(_this.cache, getKey(path, method, args, body), result);
+                lodash_1.set(_this.cache, cacheKey, result);
                 (function () { return __awaiter(_this, void 0, void 0, function () {
                     var data_1, error_1;
                     return __generator(this, function (_a) {
@@ -122,6 +124,7 @@ var Mapix = /** @class */ (function () {
                             case 2:
                                 data_1 = (_a.sent()).data;
                                 mobx_1.action(function () {
+                                    set_object_keys_1.setObjectKeys(data_1, cacheKey);
                                     result.data = data_1;
                                     result.loading = false;
                                     result.error = undefined;
@@ -160,6 +163,50 @@ var Mapix = /** @class */ (function () {
                     cachedResult.expired = true;
                     cachedResult.loading = true;
                 });
+            })();
+        };
+        this.setOptimisticResponse = function (partOfResponse, value, promises) {
+            if (promises === void 0) { promises = []; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var _a, _b, cachePath, _c, path, result, newValue, e_1;
+                return __generator(this, function (_d) {
+                    switch (_d.label) {
+                        case 0:
+                            _a = partOfResponse['__mapixCachePath'] || {}, _b = _a.cachePath, cachePath = _b === void 0 ? undefined : _b, _c = _a.path, path = _c === void 0 ? undefined : _c;
+                            if (!cachePath || !path) {
+                                throw new Error('Optimistic response part must be returned from mapix');
+                            }
+                            result = lodash_1.get(this.cache, cachePath);
+                            if (!result) {
+                                return [2 /*return*/];
+                            }
+                            newValue = set_object_keys_1.setObjectValue(result.data, path, value);
+                            result.data = newValue;
+                            _d.label = 1;
+                        case 1:
+                            _d.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, Promise.all(promises)];
+                        case 2:
+                            _d.sent();
+                            return [3 /*break*/, 4];
+                        case 3:
+                            e_1 = _d.sent();
+                            this.expireRequest(partOfResponse);
+                            throw e_1;
+                        case 4: return [2 /*return*/];
+                    }
+                });
+            });
+        };
+        this.expireRequest = function (partOfResponse) {
+            var _a = partOfResponse['__mapixCachePath'] || {}, _b = _a.cachePath, cachePath = _b === void 0 ? undefined : _b, _c = _a.path, path = _c === void 0 ? undefined : _c;
+            if (!cachePath || !path) {
+                throw new Error('Response part must be returned from mapix');
+            }
+            var cachedResult = lodash_1.get(_this.cache, cachePath);
+            mobx_1.action(function () {
+                cachedResult.expired = true;
+                cachedResult.loading = true;
             })();
         };
         this.axios = axiosInstance || axios_1.default;
