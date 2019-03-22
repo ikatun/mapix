@@ -28,4 +28,3 @@ export function setObjectValue(object: any, paths: string[], value: any, pathInd
   array[path] = setObjectValue(object[path], paths, value, pathIndex + 1);
   return array;
 }
-
