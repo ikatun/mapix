@@ -32,5 +32,5 @@ export declare class Mapix {
     setOptimisticResponse: (partOfResponse: any, value: any, promises?: Promise<any>[]) => Promise<void>;
     expireRequest: (partOfResponse: any) => void;
 }
-export declare const expire: (getterForPath?: Function | undefined, args?: object | undefined, body?: undefined) => void;
+export declare const expire: (getterForPath?: Function | undefined, args?: object | undefined, body?: undefined) => Promise<any>;
 export declare const createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions) => (args?: object, body?: undefined, requestOpts?: IMapixOptions) => ApiCall<T>;

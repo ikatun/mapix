@@ -45,6 +45,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = __importDefault(require("axios"));
 var mobx_1 = require("mobx");
@@ -164,6 +165,18 @@ var Mapix = /** @class */ (function () {
                     cachedResult.loading = true;
                 });
             })();
+            var expirationPromises = cachedResults.map(function (result) {
+                return new Promise(function (resolve) {
+                    var stopObserving = mobx_1.observe(result, 'loading', function (_a) {
+                        var newValue = _a.newValue;
+                        if (newValue === false) {
+                            resolve();
+                            stopObserving();
+                        }
+                    });
+                });
+            });
+            return Promise.all(expirationPromises);
         };
         this.setOptimisticResponse = function (partOfResponse, value, promises) {
             if (promises === void 0) { promises = []; }
@@ -218,14 +231,19 @@ var Mapix = /** @class */ (function () {
 exports.Mapix = Mapix;
 exports.expire = function (getterForPath, args, body) {
     if (body === void 0) { body = undefined; }
-    if (!getterForPath) {
-        expireEverything();
-        return;
-    }
-    var path = getterForPath.path;
-    var method = getterForPath.method;
-    var mapix = getterForPath.mapix;
-    mapix.expirePath(path, method, args, body);
+    return __awaiter(_this, void 0, void 0, function () {
+        var path, method, mapix;
+        return __generator(this, function (_a) {
+            if (!getterForPath) {
+                expireEverything();
+                return [2 /*return*/];
+            }
+            path = getterForPath.path;
+            method = getterForPath.method;
+            mapix = getterForPath.mapix;
+            return [2 /*return*/, mapix.expirePath(path, method, args, body)];
+        });
+    });
 };
 var expireEverything = mobx_1.action(function () {
     allCreatedGetters.forEach(function (createdGetter) { return exports.expire(createdGetter); });
