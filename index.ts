@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { observable, toJS, action } from 'mobx';
 import { get, set, keys, values, flatten, noop } from 'lodash';
 import { resolvePath } from './resolve-path';
+import { setObjectKeys, setObjectValue } from './set-object-keys';
 
 export interface ApiCall<T> extends Promise<AxiosResponse<T>>{
   data?: T;
@@ -82,7 +83,8 @@ export class Mapix {
       const resultingPath = resolvePath(path, args);
 
       const logData = { path, args, method, body, resultingPath };
-      const cachedResult = get(this.cache, getKey(path, method, args, body));
+      const cacheKey = getKey(path, method, args, body);
+      const cachedResult = get(this.cache, cacheKey);
       if (cachedResult && !cachedResult.expired) {
         log({ ...logData, status: 'cached', result: cachedResult });
         return cachedResult;
@@ -99,12 +101,13 @@ export class Mapix {
         'catch': requestPromise.catch.bind(requestPromise),
       });
 
-      set(this.cache, getKey(path, method, args, body), result);
+      set(this.cache, cacheKey, result);
       (async () => {
         log({ ...logData, status: 'awaiting' });
         try {
           const { data } = await requestPromise;
           action(() => { // make these statements a transaction
+            setObjectKeys(data, cacheKey);
             result.data = data;
             result.loading = false;
             result.error = undefined;
@@ -142,6 +145,39 @@ export class Mapix {
         cachedResult.expired = true;
         cachedResult.loading = true;
       });
+    })();
+  }
+
+  public setOptimisticResponse = async (partOfResponse: any, value: any, promises: Promise<any>[] = []) => {
+    const { cachePath = undefined, path = undefined } = partOfResponse['__mapixCachePath'] || {};
+    if (!cachePath || !path) {
+      throw new Error('Optimistic response part must be returned from mapix');
+    }
+    const result = get(this.cache, cachePath);
+
+    if (!result) {
+      return;
+    }
+
+    const newValue = setObjectValue(result.data, path, value);
+    result.data = newValue;
+    try {
+      await Promise.all(promises);
+    } catch (e) {
+      this.expireRequest(partOfResponse);
+      throw e;
+    }
+  }
+
+  public expireRequest = (partOfResponse: any) => {
+    const { cachePath = undefined, path = undefined } = partOfResponse['__mapixCachePath'] || {};
+    if (!cachePath || !path) {
+      throw new Error('Response part must be returned from mapix');
+    }
+    const cachedResult = get(this.cache, cachePath);
+    action(() => {
+      cachedResult.expired = true;
+      cachedResult.loading = true;
     })();
   }
 }
