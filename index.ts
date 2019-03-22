@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import { observable, toJS, action, observe } from 'mobx';
+import { observable, toJS, action } from 'mobx';
 import { get, set, keys, values, flatten, noop } from 'lodash';
 import { resolvePath } from './resolve-path';
 import { setObjectKeys, setObjectValue } from './set-object-keys';
@@ -146,19 +146,6 @@ export class Mapix {
         cachedResult.loading = true;
       });
     })();
-
-    const expirationPromises = cachedResults.map(result => {
-      return new Promise((resolve) => {
-        const stopObserving = observe(result, 'loading', ({ newValue }) => {
-          if (newValue === false) {
-            resolve();
-            stopObserving();
-          }
-        });
-      })
-    });
-
-    return Promise.all(expirationPromises);
   }
 
   public setOptimisticResponse = async (partOfResponse: any, value: any, promises: Promise<any>[] = []) => {
@@ -195,7 +182,7 @@ export class Mapix {
   }
 }
 
-export const expire = async (getterForPath?: Function, args?: object, body = undefined) => {
+export const expire = (getterForPath?: Function, args?: object, body = undefined) => {
   if (!getterForPath) {
     expireEverything();
     return;
@@ -205,7 +192,7 @@ export const expire = async (getterForPath?: Function, args?: object, body = und
   const method = (getterForPath as any).method;
   const mapix = (getterForPath as any).mapix;
 
-  return mapix.expirePath(path, method, args, body);
+  mapix.expirePath(path, method, args, body);
 }
 
 const expireEverything = action(() => {
