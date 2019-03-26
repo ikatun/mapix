@@ -15,11 +15,13 @@ var recursive_iterator_1 = __importDefault(require("recursive-iterator"));
 function setObjectKeys(obj, cachePath) {
     for (var _i = 0, _a = Array.from(new recursive_iterator_1.default(obj)); _i < _a.length; _i++) {
         var _b = _a[_i], path = _b.path, node = _b.node;
-        if (typeof node === 'object') {
+        if (typeof node === 'object' && node !== null) {
             node['__mapixCachePath'] = { cachePath: cachePath, path: path };
         }
     }
-    obj['__mapixCachePath'] = { cachePath: cachePath, path: [] };
+    if (obj !== null) {
+        obj['__mapixCachePath'] = { cachePath: cachePath, path: [] };
+    }
 }
 exports.setObjectKeys = setObjectKeys;
 function setObjectValue(object, paths, value, pathIndex) {

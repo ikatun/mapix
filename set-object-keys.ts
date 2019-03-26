@@ -2,12 +2,14 @@ import RecursiveIterator from 'recursive-iterator';
 
 export function setObjectKeys(obj: any, cachePath: string[]) {
   for (const { path, node } of Array.from(new RecursiveIterator(obj)) as any) {
-    if (typeof node === 'object') {
+    if (typeof node === 'object' && node !== null) {
       node['__mapixCachePath'] = { cachePath, path };
     }
   }
 
-  obj['__mapixCachePath'] = { cachePath, path: [] };
+  if (obj !== null) {
+    obj['__mapixCachePath'] = { cachePath, path: [] };
+  }
 }
 
 export function setObjectValue(object: any, paths: string[], value: any, pathIndex: number = 0) {
