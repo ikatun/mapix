@@ -225,7 +225,7 @@ exports.expire = function (getterForPath, args, body, expirationReason) {
     if (body === void 0) { body = undefined; }
     if (expirationReason === void 0) { expirationReason = undefined; }
     if (!getterForPath) {
-        expireEverything();
+        expireEverything(expirationReason);
         return;
     }
     var path = getterForPath.path;
@@ -233,7 +233,7 @@ exports.expire = function (getterForPath, args, body, expirationReason) {
     var mapix = getterForPath.mapix;
     mapix.expirePath(path, method, args, body, expirationReason);
 };
-var expireEverything = mobx_1.action(function () {
-    allCreatedGetters.forEach(function (createdGetter) { return exports.expire(createdGetter); });
-});
+var expireEverything = function (expirationReason) { return mobx_1.action(function () {
+    allCreatedGetters.forEach(function (createdGetter) { return exports.expire(createdGetter, undefined, undefined, expirationReason); });
+})(); };
 exports.createGetter = new Mapix().createGetter;

@@ -189,7 +189,7 @@ export class Mapix {
 
 export const expire = (getterForPath?: Function, args?: object, body = undefined, expirationReason = undefined) => {
   if (!getterForPath) {
-    expireEverything();
+    expireEverything(expirationReason);
     return;
   }
 
@@ -200,8 +200,8 @@ export const expire = (getterForPath?: Function, args?: object, body = undefined
   mapix.expirePath(path, method, args, body, expirationReason);
 }
 
-const expireEverything = action(() => {
-  allCreatedGetters.forEach(createdGetter => expire(createdGetter));
-});
+const expireEverything = (expirationReason?: any) => action(() => {
+  allCreatedGetters.forEach(createdGetter => expire(createdGetter, undefined, undefined, expirationReason));
+})();
 
 export const { createGetter } = new Mapix();
