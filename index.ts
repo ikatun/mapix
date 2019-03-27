@@ -187,7 +187,7 @@ export class Mapix {
   }
 }
 
-export const expire = (getterForPath?: Function, args?: object, body = undefined, expirationReason = undefined) => {
+export const expire = (getterForPath?: Function, args?: object, body = undefined, expirationReason: any = undefined) => {
   if (!getterForPath) {
     expireEverything(expirationReason);
     return;
