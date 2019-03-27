@@ -100,7 +100,7 @@ export class Mapix {
         expired: false,
         then: requestPromise.then.bind(requestPromise),
         'catch': requestPromise.catch.bind(requestPromise),
-        expirationReason: undefined,
+        expirationReason: cachedResult && cachedResult.expirationReason,
       });
 
       set(this.cache, cacheKey, result);
@@ -142,7 +142,7 @@ export class Mapix {
     return getterForPath;
   }
 
-  private expirePath = (path: string, method?: string, args?: object, body = undefined, expirationReason = undefined) => {
+  private expirePath = (path: string, method?: string, args?: object, body: any = undefined, expirationReason: any = undefined) => {
     const cachedResults = getCachedValues(this.cache, path, method, args, body);
     action(() => {
       cachedResults.forEach((cachedResult) => {

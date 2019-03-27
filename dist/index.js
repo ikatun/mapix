@@ -109,7 +109,7 @@ var Mapix = /** @class */ (function () {
                     expired: false,
                     then: requestPromise.then.bind(requestPromise),
                     'catch': requestPromise.catch.bind(requestPromise),
-                    expirationReason: undefined,
+                    expirationReason: cachedResult && cachedResult.expirationReason,
                 });
                 lodash_1.set(_this.cache, cacheKey, result);
                 (function () { return __awaiter(_this, void 0, void 0, function () {
