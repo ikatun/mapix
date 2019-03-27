@@ -4,6 +4,7 @@ export interface ApiCall<T> extends Promise<AxiosResponse<T>> {
     loading: boolean;
     error?: Error;
     expired: boolean;
+    expirationReason?: any;
 }
 export interface ILogArgs {
     path: string;
@@ -32,5 +33,5 @@ export declare class Mapix {
     setOptimisticResponse: (partOfResponse: any, value: any, promises?: Promise<any>[]) => Promise<void>;
     expireRequest: (partOfResponse: any) => void;
 }
-export declare const expire: (getterForPath?: Function | undefined, args?: object | undefined, body?: undefined) => void;
+export declare const expire: (getterForPath?: Function | undefined, args?: object | undefined, body?: undefined, expirationReason?: undefined) => void;
 export declare const createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions) => (args?: object, body?: undefined, requestOpts?: IMapixOptions) => ApiCall<T>;

@@ -109,6 +109,7 @@ var Mapix = /** @class */ (function () {
                     expired: false,
                     then: requestPromise.then.bind(requestPromise),
                     'catch': requestPromise.catch.bind(requestPromise),
+                    expirationReason: undefined,
                 });
                 lodash_1.set(_this.cache, cacheKey, result);
                 (function () { return __awaiter(_this, void 0, void 0, function () {
@@ -128,6 +129,7 @@ var Mapix = /** @class */ (function () {
                                     result.data = data_1;
                                     result.loading = false;
                                     result.error = undefined;
+                                    result.expirationReason = undefined;
                                 })();
                                 log(__assign({}, logData, { status: 'done', result: result }));
                                 return [3 /*break*/, 4];
@@ -137,6 +139,7 @@ var Mapix = /** @class */ (function () {
                                     result.data = undefined;
                                     result.loading = false;
                                     result.error = error_1;
+                                    result.expirationReason = undefined;
                                 })();
                                 log(__assign({}, logData, { status: 'failed', result: result }));
                                 if (opts.useHandler || requestOpts.useHandler) {
@@ -155,13 +158,15 @@ var Mapix = /** @class */ (function () {
             allCreatedGetters.push(getterForPath);
             return getterForPath;
         };
-        this.expirePath = function (path, method, args, body) {
+        this.expirePath = function (path, method, args, body, expirationReason) {
             if (body === void 0) { body = undefined; }
+            if (expirationReason === void 0) { expirationReason = undefined; }
             var cachedResults = getCachedValues(_this.cache, path, method, args, body);
             mobx_1.action(function () {
                 cachedResults.forEach(function (cachedResult) {
                     cachedResult.expired = true;
                     cachedResult.loading = true;
+                    cachedResult.expirationReason = expirationReason;
                 });
             })();
         };
@@ -216,8 +221,9 @@ var Mapix = /** @class */ (function () {
     return Mapix;
 }());
 exports.Mapix = Mapix;
-exports.expire = function (getterForPath, args, body) {
+exports.expire = function (getterForPath, args, body, expirationReason) {
     if (body === void 0) { body = undefined; }
+    if (expirationReason === void 0) { expirationReason = undefined; }
     if (!getterForPath) {
         expireEverything();
         return;
@@ -225,7 +231,7 @@ exports.expire = function (getterForPath, args, body) {
     var path = getterForPath.path;
     var method = getterForPath.method;
     var mapix = getterForPath.mapix;
-    mapix.expirePath(path, method, args, body);
+    mapix.expirePath(path, method, args, body, expirationReason);
 };
 var expireEverything = mobx_1.action(function () {
     allCreatedGetters.forEach(function (createdGetter) { return exports.expire(createdGetter); });

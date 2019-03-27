@@ -9,6 +9,7 @@ export interface ApiCall<T> extends Promise<AxiosResponse<T>>{
   loading: boolean;
   error?: Error;
   expired: boolean;
+  expirationReason?: any;
 }
 
 function getKey(path: string, method: string, args?: object, body?: object): Array<string> {
@@ -99,6 +100,7 @@ export class Mapix {
         expired: false,
         then: requestPromise.then.bind(requestPromise),
         'catch': requestPromise.catch.bind(requestPromise),
+        expirationReason: undefined,
       });
 
       set(this.cache, cacheKey, result);
@@ -111,6 +113,7 @@ export class Mapix {
             result.data = data;
             result.loading = false;
             result.error = undefined;
+            result.expirationReason = undefined;
           })();
           log({ ...logData, status: 'done', result });
         } catch (error) {
@@ -118,6 +121,7 @@ export class Mapix {
             result.data = undefined;
             result.loading = false;
             result.error = error;
+            result.expirationReason = undefined;
           })();
           log({ ...logData, status: 'failed', result });
           if (opts.useHandler || requestOpts.useHandler) {
@@ -138,12 +142,13 @@ export class Mapix {
     return getterForPath;
   }
 
-  private expirePath = (path: string, method?: string, args?: object, body = undefined) => {
+  private expirePath = (path: string, method?: string, args?: object, body = undefined, expirationReason = undefined) => {
     const cachedResults = getCachedValues(this.cache, path, method, args, body);
     action(() => {
       cachedResults.forEach((cachedResult) => {
         cachedResult.expired = true;
         cachedResult.loading = true;
+        cachedResult.expirationReason = expirationReason;
       });
     })();
   }
@@ -182,7 +187,7 @@ export class Mapix {
   }
 }
 
-export const expire = (getterForPath?: Function, args?: object, body = undefined) => {
+export const expire = (getterForPath?: Function, args?: object, body = undefined, expirationReason = undefined) => {
   if (!getterForPath) {
     expireEverything();
     return;
@@ -192,7 +197,7 @@ export const expire = (getterForPath?: Function, args?: object, body = undefined
   const method = (getterForPath as any).method;
   const mapix = (getterForPath as any).mapix;
 
-  mapix.expirePath(path, method, args, body);
+  mapix.expirePath(path, method, args, body, expirationReason);
 }
 
 const expireEverything = action(() => {
