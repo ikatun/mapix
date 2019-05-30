@@ -92,13 +92,14 @@ export class Mapix {
       }
 
       const requestPromise = this.axios[method](resultingPath, body);
+      const requestDataPromise = extractDataFromResponse(requestPromise);
 
       const result = observable({
         data: cachedResult && cachedResult.data,
         error: undefined,
         loading: true,
         expired: false,
-        then: requestPromise.then.bind(requestPromise),
+        then: requestDataPromise.then.bind(requestDataPromise),
         'catch': requestPromise.catch.bind(requestPromise),
         expirationReason: cachedResult && cachedResult.expirationReason,
       });

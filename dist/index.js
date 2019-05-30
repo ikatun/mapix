@@ -102,12 +102,13 @@ var Mapix = /** @class */ (function () {
                     return cachedResult;
                 }
                 var requestPromise = _this.axios[method](resultingPath, body);
+                var requestDataPromise = extractDataFromResponse(requestPromise);
                 var result = mobx_1.observable({
                     data: cachedResult && cachedResult.data,
                     error: undefined,
                     loading: true,
                     expired: false,
-                    then: requestPromise.then.bind(requestPromise),
+                    then: requestDataPromise.then.bind(requestDataPromise),
                     'catch': requestPromise.catch.bind(requestPromise),
                     expirationReason: cachedResult && cachedResult.expirationReason,
                 });
