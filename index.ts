@@ -3,6 +3,7 @@ import { observable, toJS, action } from 'mobx';
 import { get, set, keys, values, flatten, noop } from 'lodash';
 import { resolvePath } from './resolve-path';
 import { setObjectKeys, setObjectValue } from './set-object-keys';
+import { extractDataFromResponse } from './extract-data-from-response';
 
 export interface ApiCall<T> extends Promise<AxiosResponse<T>>{
   data?: T;

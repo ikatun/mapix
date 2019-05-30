@@ -51,6 +51,7 @@ var mobx_1 = require("mobx");
 var lodash_1 = require("lodash");
 var resolve_path_1 = require("./resolve-path");
 var set_object_keys_1 = require("./set-object-keys");
+var extract_data_from_response_1 = require("./extract-data-from-response");
 function getKey(path, method, args, body) {
     return [path, method, JSON.stringify(args), JSON.stringify(body)];
 }
@@ -102,7 +103,7 @@ var Mapix = /** @class */ (function () {
                     return cachedResult;
                 }
                 var requestPromise = _this.axios[method](resultingPath, body);
-                var requestDataPromise = extractDataFromResponse(requestPromise);
+                var requestDataPromise = extract_data_from_response_1.extractDataFromResponse(requestPromise);
                 var result = mobx_1.observable({
                     data: cachedResult && cachedResult.data,
                     error: undefined,
