@@ -115,28 +115,38 @@ var Mapix = /** @class */ (function () {
                 });
                 lodash_1.set(_this.cache, cacheKey, result);
                 (function () { return __awaiter(_this, void 0, void 0, function () {
-                    var data_1, error_1;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
+                    var originalData, data_1, _a, error_1;
+                    return __generator(this, function (_b) {
+                        switch (_b.label) {
                             case 0:
                                 log(__assign({}, logData, { status: 'awaiting' }));
-                                _a.label = 1;
+                                _b.label = 1;
                             case 1:
-                                _a.trys.push([1, 3, , 4]);
+                                _b.trys.push([1, 6, , 7]);
                                 return [4 /*yield*/, requestPromise];
                             case 2:
-                                data_1 = (_a.sent()).data;
+                                originalData = (_b.sent()).data;
+                                if (!requestOpts.postProcess) return [3 /*break*/, 4];
+                                return [4 /*yield*/, requestOpts.postProcess(originalData)];
+                            case 3:
+                                _a = _b.sent();
+                                return [3 /*break*/, 5];
+                            case 4:
+                                _a = originalData;
+                                _b.label = 5;
+                            case 5:
+                                data_1 = _a;
                                 mobx_1.action(function () {
-                                    set_object_keys_1.setObjectKeys(data_1, cacheKey);
+                                    // setObjectKeys(data, cacheKey);
                                     result.data = data_1;
                                     result.loading = false;
                                     result.error = undefined;
                                     result.expirationReason = undefined;
                                 })();
                                 log(__assign({}, logData, { status: 'done', result: result }));
-                                return [3 /*break*/, 4];
-                            case 3:
-                                error_1 = _a.sent();
+                                return [3 /*break*/, 7];
+                            case 6:
+                                error_1 = _b.sent();
                                 mobx_1.action(function () {
                                     result.data = undefined;
                                     result.loading = false;
@@ -147,8 +157,8 @@ var Mapix = /** @class */ (function () {
                                 if (opts.useHandler || requestOpts.useHandler) {
                                     this.defaultErrorHandler(error_1);
                                 }
-                                return [3 /*break*/, 4];
-                            case 4: return [2 /*return*/];
+                                return [3 /*break*/, 7];
+                            case 7: return [2 /*return*/];
                         }
                     });
                 }); })();

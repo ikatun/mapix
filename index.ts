@@ -40,9 +40,10 @@ export interface ILogArgs {
   result: Object;
 }
 
-export interface IMapixOptions {
+export interface IMapixOptions<PostProcessT = any> {
   log?(args: ILogArgs): void;
   useHandler?: boolean;
+  postProcess?(data: any): Promise<PostProcessT>;
 }
 
 function removeMobxFromData(data) {
@@ -81,7 +82,7 @@ export class Mapix {
       opts.log(removeMobxFromData(data) as any);
     }
 
-    const getterForPath = (args: object = {}, body: any = undefined, requestOpts: IMapixOptions = {}): ApiCall<T> => {
+    const getterForPath = (args: object = {}, body: any = undefined, requestOpts: IMapixOptions<T> = {}): ApiCall<T> => {
       const resultingPath = resolvePath(path, args);
 
       const logData = { path, args, method, body, resultingPath };
@@ -109,9 +110,10 @@ export class Mapix {
       (async () => {
         log({ ...logData, status: 'awaiting' });
         try {
-          const { data } = await requestPromise;
+          const { data: originalData } = await requestPromise;
+          const data = requestOpts.postProcess ? await requestOpts.postProcess(originalData) : originalData;
           action(() => { // make these statements a transaction
-            setObjectKeys(data, cacheKey);
+            // setObjectKeys(data, cacheKey);
             result.data = data;
             result.loading = false;
             result.error = undefined;
