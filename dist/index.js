@@ -249,3 +249,5 @@ var expireEverything = function (expirationReason) { return mobx_1.action(functi
     allCreatedGetters.forEach(function (createdGetter) { return exports.expire(createdGetter, undefined, undefined, expirationReason); });
 })(); };
 exports.createGetter = new Mapix().createGetter;
+var transform_1 = require("./transform");
+exports.transform = transform_1.transform;

@@ -36,3 +36,4 @@ export declare class Mapix {
 }
 export declare const expire: (getterForPath?: Function | undefined, args?: object | undefined, body?: undefined, expirationReason?: any) => void;
 export declare const createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions<T>) => (args?: object, body?: any, requestOpts?: IMapixOptions<T>) => ApiCall<T>;
+export { transform } from './transform';

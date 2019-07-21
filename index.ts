@@ -209,3 +209,4 @@ const expireEverything = (expirationReason?: any) => action(() => {
 })();
 
 export const { createGetter } = new Mapix();
+export { transform } from './transform';
