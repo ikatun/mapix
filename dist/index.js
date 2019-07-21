@@ -126,8 +126,8 @@ var Mapix = /** @class */ (function () {
                                 return [4 /*yield*/, requestPromise];
                             case 2:
                                 originalData = (_b.sent()).data;
-                                if (!requestOpts.postProcess) return [3 /*break*/, 4];
-                                return [4 /*yield*/, requestOpts.postProcess(originalData)];
+                                if (!opts.postProcess) return [3 /*break*/, 4];
+                                return [4 /*yield*/, opts.postProcess(originalData)];
                             case 3:
                                 _a = _b.sent();
                                 return [3 /*break*/, 5];

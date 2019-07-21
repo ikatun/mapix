@@ -29,10 +29,10 @@ export declare class Mapix {
     private mapixOptions;
     private defaultErrorHandler;
     constructor(axiosInstance?: AxiosInstance, mapixOptions?: IMapixConstructorOptions);
-    createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions<any>) => (args?: object, body?: any, requestOpts?: IMapixOptions<T>) => ApiCall<T>;
+    createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions<T>) => (args?: object, body?: any, requestOpts?: IMapixOptions<T>) => ApiCall<T>;
     private expirePath;
     setOptimisticResponse: (partOfResponse: any, value: any, promises?: Promise<any>[]) => Promise<void>;
     expireRequest: (partOfResponse: any) => void;
 }
 export declare const expire: (getterForPath?: Function | undefined, args?: object | undefined, body?: undefined, expirationReason?: any) => void;
-export declare const createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions<any>) => (args?: object, body?: any, requestOpts?: IMapixOptions<T>) => ApiCall<T>;
+export declare const createGetter: <T = any>(path: string, method?: string, opts?: IMapixOptions<T>) => (args?: object, body?: any, requestOpts?: IMapixOptions<T>) => ApiCall<T>;

@@ -74,7 +74,7 @@ export class Mapix {
   }
 
 
-  public createGetter = <T = any>(path: string, method: string = 'get', opts: IMapixOptions = {}) => {
+  public createGetter = <T = any>(path: string, method: string = 'get', opts: IMapixOptions<T> = {}) => {
     const log = (data: object) => {
       if (!opts.log) {
         return;
@@ -111,7 +111,7 @@ export class Mapix {
         log({ ...logData, status: 'awaiting' });
         try {
           const { data: originalData } = await requestPromise;
-          const data = requestOpts.postProcess ? await requestOpts.postProcess(originalData) : originalData;
+          const data = opts.postProcess ? await opts.postProcess(originalData) : originalData;
           action(() => { // make these statements a transaction
             // setObjectKeys(data, cacheKey);
             result.data = data;
