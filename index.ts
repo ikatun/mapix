@@ -43,7 +43,7 @@ export interface ILogArgs {
 export interface IMapixOptions<PostProcessT = any> {
   log?(args: ILogArgs): void;
   useHandler?: boolean;
-  postProcess?(data: any): Promise<PostProcessT>;
+  postProcess?(data: any): PostProcessT | Promise<PostProcessT>;
 }
 
 function removeMobxFromData(data) {
