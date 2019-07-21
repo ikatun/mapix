@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-function extractDataFromResponse(requestPromise) {
+function extractDataFromResponse(requestPromise, postProcess) {
     return __awaiter(this, void 0, void 0, function () {
         var data;
         return __generator(this, function (_a) {
@@ -43,7 +43,7 @@ function extractDataFromResponse(requestPromise) {
                 case 0: return [4 /*yield*/, requestPromise];
                 case 1:
                     data = (_a.sent()).data;
-                    return [2 /*return*/, data];
+                    return [2 /*return*/, postProcess ? postProcess(data) : data];
             }
         });
     });

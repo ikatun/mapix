@@ -1,5 +1,5 @@
-export async function extractDataFromResponse(requestPromise) {
+export async function extractDataFromResponse(requestPromise, postProcess) {
   const { data } = await requestPromise;
 
-  return data;
+  return postProcess ? postProcess(data) : data;
 }

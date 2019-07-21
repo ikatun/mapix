@@ -103,7 +103,7 @@ var Mapix = /** @class */ (function () {
                     return cachedResult;
                 }
                 var requestPromise = _this.axios[method](resultingPath, body);
-                var requestDataPromise = extract_data_from_response_1.extractDataFromResponse(requestPromise);
+                var requestDataPromise = extract_data_from_response_1.extractDataFromResponse(requestPromise, requestOpts.postProcess);
                 var result = mobx_1.observable({
                     data: cachedResult && cachedResult.data,
                     error: undefined,

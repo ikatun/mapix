@@ -94,7 +94,7 @@ export class Mapix {
       }
 
       const requestPromise = this.axios[method](resultingPath, body);
-      const requestDataPromise = extractDataFromResponse(requestPromise);
+      const requestDataPromise = extractDataFromResponse(requestPromise, requestOpts.postProcess);
 
       const result = observable({
         data: cachedResult && cachedResult.data,

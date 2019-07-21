@@ -1,1 +1,1 @@
-export declare function extractDataFromResponse(requestPromise: any): Promise<any>;
+export declare function extractDataFromResponse(requestPromise: any, postProcess: any): Promise<any>;
